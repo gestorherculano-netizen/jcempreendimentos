@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>JC Log - Rastreador do Motoboy</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e293b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="JC Tracker">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #111827;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #22c55e;
+            --accent-hover: #16a34a;
+            --accent-blue: #3b82f6;
+            --border-color: #334155;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .tracker-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-shrink: 0;
+            z-index: 50;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-logo {
+            width: 48px;
+            height: 48px;
+            background-color: var(--accent-blue);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 18px;
+        }
+
+        .header-info h1 {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .header-info p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background-color: var(--bg-primary);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.online {
+            background-color: #10b981;
+        }
+
+        .status-dot.offline {
+            background-color: var(--text-muted);
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* ===== MAPA ===== */
+        .map-section {
+            flex: 1;
+            position: relative;
+            background-color: var(--bg-card);
+            overflow: hidden;
+        }
+
+        #map-tracker {
+            width: 100%;
+            height: 100%;
+        }
+
+        .map-overlay {
+            position: absolute;
+            background-color: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 13px;
+            z-index: 400;
+        }
+
+        .map-overlay.top-left {
+            top: 12px;
+            left: 12px;
+        }
+
+        .map-overlay.bottom-right {
+            bottom: 12px;
+            right: 12px;
+        }
+
+        .overlay-title {
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .overlay-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            color: var(--text-muted);
+        }
+
+        .overlay-info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .overlay-info-label {
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        /* ===== BOTTOM PANEL ===== */
+        .bottom-panel {
+            background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex-shrink: 0;
+            z-index: 50;
+            max-height: 45vh;
+            overflow-y: auto;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .panel-title {
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px 8px;
+        }
+
+        /* ===== FORMULÁRIO ===== */
+        .tracker-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .form-group input,
+        .form-group select {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: var(--text-main);
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* ===== BOTÕES ===== */
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-primary.tracking {
+            background-color: var(--danger);
+        }
+
+        .btn-secondary {
+            background-color: var(--accent-blue);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        /* ===== STATUS CARDS ===== */
+        .status-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .status-card {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .status-card-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .status-card-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .status-card.accuracy .status-card-value {
+            color: var(--accent);
+        }
+
+        /* ===== HISTÓRICO ===== */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 12px;
+        }
+
+        .history-time {
+            color: var(--text-muted);
+            font-size: 10px;
+        }
+
+        .history-location {
+            color: var(--text-main);
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        /* ===== LOADING ===== */
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--text-muted);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== NOTIFICAÇÕES ===== */
+        .notification {
+            position: fixed;
+            top: env(safe-area-inset-top, 20px);
+            right: 16px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 13px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            max-width: calc(100vw - 32px);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(calc(100% + 16px));
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.success {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .notification.error {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .notification.info {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                padding: 12px 16px;
+            }
+
+            .bottom-panel {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="tracker-container">
+        <!-- HEADER -->
+        <header>
+            <div class="header-left">
+                <div class="header-logo"><i class="fa-solid fa-motorcycle"></i></div>
+                <div class="header-info">
+                    <h1 id="motoboy-name">Seu Nome</h1>
+                    <p id="session-time">Parado</p>
+                </div>
+            </div>
+            <div class="header-status">
+                <div class="status-dot offline" id="status-indicator"></div>
+                <span id="status-text">Offline</span>
+            </div>
+        </header>
+
+        <!-- MAPA -->
+        <div class="map-section">
+            <div id="map-tracker"></div>
+            
+            <!-- Overlay Superior Esquerdo -->
+            <div class="map-overlay top-left">
+                <div class="overlay-title">
+                    <i class="fa-solid fa-signal"></i> Sinal GPS
+                </div>
+                <div class="overlay-info">
+                    <div class="overlay-info-item">
+                        <span class="overlay-info-label">Satélites:</span>
+                        <span id="satellites-count">0</span>
+                    </div>
+                    <div class="overlay-info-item">
+                        <span class="overlay-info-label">Precisão:</span>
+                        <span id="accuracy-value">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overlay Inferior Direito -->
+            <div class="map-overlay bottom-right">
+                <div class="overlay-title">
+                    <i class="fa-solid fa-location-dot"></i> Coordenadas
+                </div>
+                <div class="overlay-info">
+                    <div class="overlay-info-item">
+                        <span class="overlay-info-label">Lat:</span>
+                        <span id="latitude-value">-5.5</span>
+                    </div>
+                    <div class="overlay-info-item">
+                        <span class="overlay-info-label">Lng:</span>
+                        <span id="longitude-value">-38.5</span>
+                    </div>
+                    <div class="overlay-info-item">
+                        <span class="overlay-info-label">Altitude:</span>
+                        <span id="altitude-value">--m</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAINEL INFERIOR -->
+        <div class="bottom-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fa-solid fa-sliders"></i> Controle de Rastreamento
+                </div>
+                <button class="toggle-btn" onclick="togglePanel()">
+                    <i class="fa-solid fa-chevron-down" id="toggle-icon"></i>
+                </button>
+            </div>
+
+            <div id="panel-content">
+                <!-- Formulário de Seleção -->
+                <div class="tracker-form" id="setup-form">
+                    <div class="form-group">
+                        <label>Selecione seu nome</label>
+                        <select id="motoboy-select" onchange="selectMotoboy()">
+                            <option value="">-- Carregando --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Seu Telefone</label>
+                        <input type="tel" id="phone-input" placeholder="(85) 98888-8888" readonly>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="startTracking()">
+                            <i class="fa-solid fa-play"></i> Iniciar Jornada
+                        </button>
+                        <button class="btn btn-secondary" onclick="getLocationOnce()">
+                            <i class="fa-solid fa-crosshairs"></i> Localizar Agora
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Painel de Rastreamento Ativo -->
+                <div class="tracker-form" id="tracking-form" style="display: none;">
+                    <div class="status-cards">
+                        <div class="status-card">
+                            <div class="status-card-label">Tempo</div>
+                            <div class="status-card-value" id="elapsed-time">00:00:00</div>
+                        </div>
+                        <div class="status-card accuracy">
+                            <div class="status-card-label">Atualizações</div>
+                            <div class="status-card-value" id="update-count">0</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Histórico de Localização</label>
+                        <div class="history-list" id="history-container">
+                            <div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 12px;">
+                                Nenhuma atualização ainda...
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn btn-danger tracking" onclick="stopTracking()">
+                            <i class="fa-solid fa-stop"></i> Finalizar Jornada
+                        </button>
+                        <button class="btn btn-secondary" onclick="syncNow()">
+                            <i class="fa-solid fa-arrows-rotate" id="sync-icon"></i> Sincronizar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet Map Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbwDGImVkZh8pDoL5d9wu6SYA_zkPacY2XApiTsHABxTQAuc-UutHF4SZvTeaCDds3hvng/exec";
+        
+        let map = null;
+        let currentMarker = null;
+        let trailPolyline = null;
+        let trackerState = {
+            motoboyName: localStorage.getItem('motoboyName') || '',
+            motoboyPhone: localStorage.getItem('motoboyPhone') || '',
+            isTracking: localStorage.getItem('isTracking') === 'true',
+            startTime: parseInt(localStorage.getItem('startTime')) || null,
+            locations: JSON.parse(localStorage.getItem('locations')) || [],
+            watchId: null,
+            lastUpdate: null
+        };
+
+        const motoboyPhones = {};
+        let allMotoboys = [];
+
+        // ===== INICIALIZAÇÃO =====
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMap();
+            loadMotoboys();
+            updateHeader();
+            
+            if (trackerState.isTracking) {
+                showTrackingPanel();
+                startContinuousTracking();
+                updateElapsedTime();
+                setInterval(updateElapsedTime, 1000);
+            }
+
+            // Background sync a cada 30 segundos
+            setInterval(() => {
+                if (trackerState.isTracking && trackerState.locations.length > 0) {
+                    syncLocationsToSheets();
+                }
+            }, 30000);
+        });
+
+        // ===== MAPA =====
+        function initializeMap() {
+            if (map) return;
+            
+            map = L.map('map-tracker').setView([-5.5, -38.5], 14);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Recarregar rota se estava rastreando
+            if (trackerState.isTracking && trackerState.locations.length > 0) {
+                drawTrail();
+                map.setView(trackerState.locations[trackerState.locations.length - 1], 16);
+            }
+        }
+
+        function drawTrail() {
+            if (trailPolyline) {
+                map.removeLayer(trailPolyline);
+            }
+
+            if (trackerState.locations.length < 2) return;
+
+            const latlngs = trackerState.locations.map(loc => [loc.lat, loc.lng]);
+            trailPolyline = L.polyline(latlngs, {
+                color: '#3b82f6',
+                weight: 3,
+                opacity: 0.7,
+                lineCap: 'round',
+                lineJoin: 'round'
+            }).addTo(map);
+        }
+
+        function updateMapMarker(lat, lng, accuracy) {
+            if (currentMarker) {
+                map.removeLayer(currentMarker);
+            }
+
+            currentMarker = L.circleMarker([lat, lng], {
+                radius: 12,
+                fillColor: '#3b82f6',
+                color: '#fff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8
+            }).addTo(map);
+
+            // Círculo de precisão
+            L.circle([lat, lng], {
+                radius: accuracy || 20,
+                color: '#3b82f6',
+                fill: false,
+                weight: 1,
+                opacity: 0.5,
+                dashArray: '5, 5'
+            }).addTo(map);
+
+            map.setView([lat, lng], 16);
+        }
+
+        // ===== CARREGAMENTO DE DADOS =====
+        async function loadMotoboys() {
+            try {
+                const res = await fetch(`${API_URL}?action=Motoboys&t=${Date.now()}`);
+                const data = await res.json();
+                
+                allMotoboys = data.filter(m => m.Nome).map(m => m.Nome);
+                data.forEach(m => {
+                    if (m.Nome) motoboyPhones[m.Nome] = m.Telefone || '';
+                });
+
+                renderMotoboysSelect();
+
+                if (trackerState.motoboyName) {
+                    document.getElementById('motoboy-select').value = trackerState.motoboyName;
+                    document.getElementById('phone-input').value = trackerState.motoboyPhone;
+                }
+            } catch (e) {
+                console.error('Erro ao carregar motoboys', e);
+                showNotification('Erro ao carregar lista de motoboys', 'error');
+            }
+        }
+
+        function renderMotoboysSelect() {
+            const select = document.getElementById('motoboy-select');
+            select.innerHTML = '<option value="">-- Selecione seu nome --</option>';
+            allMotoboys.forEach(m => {
+                select.innerHTML += `<option value="${m}">${m}</option>`;
+            });
+        }
+
+        function selectMotoboy() {
+            const selected = document.getElementById('motoboy-select').value;
+            if (!selected) return;
+
+            trackerState.motoboyName = selected;
+            trackerState.motoboyPhone = motoboyPhones[selected] || '';
+
+            document.getElementById('phone-input').value = trackerState.motoboyPhone;
+            document.getElementById('motoboy-name').innerText = selected;
+
+            localStorage.setItem('motoboyName', selected);
+            localStorage.setItem('motoboyPhone', trackerState.motoboyPhone);
+        }
+
+        // ===== RASTREAMENTO =====
+        async function startTracking() {
+            if (!trackerState.motoboyName) {
+                showNotification('Selecione seu nome primeiro', 'error');
+                return;
+            }
+
+            trackerState.isTracking = true;
+            trackerState.startTime = Date.now();
+            trackerState.locations = [];
+
+            localStorage.setItem('isTracking', 'true');
+            localStorage.setItem('startTime', trackerState.startTime);
+            localStorage.setItem('locations', JSON.stringify([]));
+
+            updateHeader();
+            showTrackingPanel();
+            startContinuousTracking();
+
+            setInterval(updateElapsedTime, 1000);
+            showNotification(`Jornada iniciada - ${trackerState.motoboyName}`, 'success');
+        }
+
+        function startContinuousTracking() {
+            if (trackerState.watchId) {
+                navigator.geolocation.clearWatch(trackerState.watchId);
+            }
+
+            trackerState.watchId = navigator.geolocation.watchPosition(
+                (position) => {
+                    const { latitude, longitude, accuracy, altitude } = position.coords;
+                    
+                    const locationData = {
+                        lat: latitude,
+                        lng: longitude,
+                        accuracy: Math.round(accuracy),
+                        altitude: altitude ? Math.round(altitude) : null,
+                        timestamp: new Date().toISOString(),
+                        motoboy: trackerState.motoboyName
+                    };
+
+                    trackerState.locations.push(locationData);
+                    localStorage.setItem('locations', JSON.stringify(trackerState.locations));
+
+                    updateMapMarker(latitude, longitude, accuracy);
+                    drawTrail();
+                    updateCoordinatesDisplay(latitude, longitude, accuracy, altitude);
+                    addHistoryItem(latitude, longitude);
+                    updateUpdateCount();
+
+                    trackerState.lastUpdate = new Date();
+                },
+                (error) => {
+                    console.error('Erro de geolocalização:', error);
+                    let message = 'Erro ao obter localização';
+                    if (error.code === 1) message = 'Permissão negada';
+                    else if (error.code === 2) message = 'Posição indisponível';
+                    else if (error.code === 3) message = 'Timeout na localização';
+                    
+                    showNotification(message, 'error');
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        async function stopTracking() {
+            if (!confirm('Deseja finalizar a jornada?')) return;
+
+            trackerState.isTracking = false;
+            if (trackerState.watchId) {
+                navigator.geolocation.clearWatch(trackerState.watchId);
+            }
+
+            localStorage.setItem('isTracking', 'false');
+
+            // Sincronizar dados antes de parar
+            if (trackerState.locations.length > 0) {
+                await syncLocationsToSheets();
+            }
+
+            updateHeader();
+            hideTrackingPanel();
+            showNotification('Jornada finalizada e sincronizada', 'success');
+        }
+
+        function getLocationOnce() {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude, accuracy, altitude } = position.coords;
+                    updateMapMarker(latitude, longitude, accuracy);
+                    updateCoordinatesDisplay(latitude, longitude, accuracy, altitude);
+                    showNotification('Localização atualizada', 'success');
+                },
+                (error) => {
+                    showNotification('Erro ao obter localização', 'error');
+                }
+            );
+        }
+
+        async function syncNow() {
+            const icon = document.getElementById('sync-icon');
+            icon.classList.add('fa-spin');
+
+            try {
+                await syncLocationsToSheets();
+                showNotification('Dados sincronizados com sucesso', 'success');
+            } catch (e) {
+                showNotification('Erro na sincronização', 'error');
+            } finally {
+                icon.classList.remove('fa-spin');
+            }
+        }
+
+        async function syncLocationsToSheets() {
+            if (trackerState.locations.length === 0) return;
+
+            try {
+                const payload = {
+                    action: 'Rastreamento',
+                    motoboy: trackerState.motoboyName,
+                    phone: trackerState.motoboyPhone,
+                    locations: trackerState.locations,
+                    startTime: new Date(trackerState.startTime).toISOString(),
+                    endTime: new Date().toISOString(),
+                    totalLocations: trackerState.locations.length
+                };
+
+                await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+
+                console.log('Dados sincronizados:', trackerState.locations.length, 'pontos');
+            } catch (e) {
+                console.error('Erro na sincronização:', e);
+            }
+        }
+
+        // ===== ATUALIZAÇÕES DE UI =====
+        function updateHeader() {
+            document.getElementById('motoboy-name').innerText = trackerState.motoboyName || 'Seu Nome';
+            
+            if (trackerState.isTracking) {
+                document.getElementById('status-indicator').className = 'status-dot online';
+                document.getElementById('status-text').innerText = 'Em Rastreamento';
+                document.getElementById('session-time').innerText = '🔴 Ao Vivo';
+            } else {
+                document.getElementById('status-indicator').className = 'status-dot offline';
+                document.getElementById('status-text').innerText = 'Offline';
+                document.getElementById('session-time').innerText = 'Parado';
+            }
+        }
+
+        function updateCoordinatesDisplay(lat, lng, accuracy, altitude) {
+            document.getElementById('latitude-value').innerText = lat.toFixed(6);
+            document.getElementById('longitude-value').innerText = lng.toFixed(6);
+            document.getElementById('accuracy-value').innerText = Math.round(accuracy) + 'm';
+            document.getElementById('altitude-value').innerText = altitude ? Math.round(altitude) + 'm' : '--m';
+        }
+
+        function addHistoryItem(lat, lng) {
+            const container = document.getElementById('history-container');
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            
+            if (container.innerHTML.includes('Nenhuma atualização')) {
+                container.innerHTML = '';
+            }
+
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            item.innerHTML = `
+                <div class="history-time">${timeStr}</div>
+                <div class="history-location">📍 ${lat.toFixed(4)}, ${lng.toFixed(4)}</div>
+            `;
+
+            container.insertBefore(item, container.firstChild);
+
+            // Manter apenas últimas 15 atualizações
+            while (container.children.length > 15) {
+                container.removeChild(container.lastChild);
+            }
+        }
+
+        function updateUpdateCount() {
+            document.getElementById('update-count').innerText = trackerState.locations.length;
+        }
+
+        function updateElapsedTime() {
+            if (!trackerState.isTracking || !trackerState.startTime) return;
+
+            const elapsed = Math.floor((Date.now() - trackerState.startTime) / 1000);
+            const hours = Math.floor(elapsed / 3600);
+            const minutes = Math.floor((elapsed % 3600) / 60);
+            const seconds = elapsed % 60;
+
+            const timeStr = [hours, minutes, seconds]
+                .map(n => String(n).padStart(2, '0'))
+                .join(':');
+
+            document.getElementById('elapsed-time').innerText = timeStr;
+        }
+
+        function showTrackingPanel() {
+            document.getElementById('setup-form').style.display = 'none';
+            document.getElementById('tracking-form').style.display = 'flex';
+        }
+
+        function hideTrackingPanel() {
+            document.getElementById('setup-form').style.display = 'flex';
+            document.getElementById('tracking-form').style.display = 'none';
+            trackerState.locations = [];
+            localStorage.setItem('locations', JSON.stringify([]));
+        }
+
+        function togglePanel() {
+            const content = document.getElementById('panel-content');
+            const icon = document.getElementById('toggle-icon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            } else {
+                content.style.display = 'none';
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            }
+        }
+
+        // ===== NOTIFICAÇÕES =====
+        function showNotification(message, type = 'info') {
+            const notif = document.createElement('div');
+            notif.className = `notification ${type}`;
+            notif.innerHTML = `
+                <i class="fa-solid fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                ${message}
+            `;
+
+            document.body.appendChild(notif);
+
+            setTimeout(() => {
+                notif.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => notif.remove(), 300);
+            }, 3000);
+        }
+
+        // ===== PERMISSÕES =====
+        window.addEventListener('load', () => {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        });
+    </script>
+</body>
+</html>
