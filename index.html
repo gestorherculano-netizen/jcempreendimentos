@@ -593,8 +593,7 @@
 
                     <div class="card">
                         <div class="card-title"><div><i class="fa-solid fa-trophy"></i> Ranking de Corridas (Turno)</div></div>
-                        <div class="ranking-list" id="ranking-container">
-                            </div>
+                        <div class="ranking-list" id="ranking-container"></div>
                     </div>
                 </div>
             </div>
@@ -633,27 +632,35 @@
         let ordersDatabase = [];
         let registeredMotoboys = [];
         let isAdminAuthenticated = false;
+        let autoRefreshInterval = null;
 
         document.getElementById('input-date').valueAsDate = new Date();
 
         function formatCurrency(v) { return typeof v === 'number' ? v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : "R$ 0,00"; }
         function formatDate(d) { if(!d) return ""; let parts = d.split('T')[0].split('-'); return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : d; }
 
+        // Função para gerar URL com cache-busting (timestamp)
+        function getCacheBustingUrl(action) {
+            return `${API_URL}?action=${action}&t=${Date.now()}`;
+        }
+
         async function loadDataFromSheets() {
             try {
-                let resM = await fetch(`${API_URL}?action=Motoboys`);
+                let resM = await fetch(getCacheBustingUrl('Motoboys'));
                 let dataM = await resM.json();
                 registeredMotoboys = dataM.map(r => r.Nome).filter(Boolean);
                 if(registeredMotoboys.length === 0) registeredMotoboys = ["João Silva", "Pedro Santos"];
 
-                let resO = await fetch(`${API_URL}?action=Pedidos`);
+                let resO = await fetch(getCacheBustingUrl('Pedidos'));
                 ordersDatabase = await resO.json();
 
-                let resC = await fetch(`${API_URL}?action=Custos`);
+                let resC = await fetch(getCacheBustingUrl('Custos'));
                 monthlyDatabase = await resC.json();
 
                 renderAll();
-            } catch(e) { console.error("Erro ao carregar dados", e); }
+            } catch(e) { 
+                console.error("Erro ao carregar dados", e);
+            }
         }
 
         function renderAll() {
@@ -688,7 +695,6 @@
             const user = document.getElementById('admin-user-input').value.trim();
             const pass = document.getElementById('admin-pass-input').value.trim();
             
-            // Validação melhorada com mensagens de erro específicas
             if (!user || !pass) {
                 alert('⚠️ Por favor, preencha usuário e senha.');
                 return;
@@ -705,7 +711,6 @@
             }
         }
 
-        // Permitir Enter para enviar credenciais
         document.addEventListener('keypress', function(event) {
             if (event.key === 'Enter') {
                 const adminUserInput = document.getElementById('admin-user-input');
@@ -748,21 +753,27 @@
             const name = document.getElementById('new-motoboy-name').value.trim();
             if(!name || registeredMotoboys.includes(name)) return alert('Nome inválido ou já existente.');
             
-            registeredMotoboys.push(name);
-            renderAll();
             document.getElementById('new-motoboy-name').value = '';
             
             const syncBadge = document.getElementById('sync-notification');
             syncBadge.style.display = 'flex';
             
             try {
-                await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'Motoboys', name: name }) });
-                let resM = await fetch(`${API_URL}?action=Motoboys`);
-                let dataM = await resM.json();
-                registeredMotoboys = dataM.map(r => r.Nome).filter(Boolean);
-                renderAll();
+                // Enviar para API
+                await fetch(API_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ action: 'Motoboys', name: name }) 
+                });
+                
+                // Aguardar um pouco para garantir que a API processou
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Recarregar dados com cache-busting
+                await loadDataFromSheets();
+                alert('✅ Motoboy ' + name + ' adicionado com sucesso!');
             } catch(e) {
-                console.error("Erro na sincronização em background", e);
+                console.error("Erro ao sincronizar", e);
+                alert('❌ Erro ao salvar motoboy. Tente novamente.');
             } finally {
                 syncBadge.style.display = 'none';
             }
@@ -784,10 +795,17 @@
                 motoboys: Array.from(document.querySelectorAll('#checkbox-container input:checked')).map(cb => cb.value)
             };
             document.getElementById('loading-custos').style.display = 'flex';
-            await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-            await loadDataFromSheets();
-            document.getElementById('loading-custos').style.display = 'none';
-            alert('✅ Custo salvo com sucesso na Planilha!');
+            try {
+                await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+                await new Promise(resolve => setTimeout(resolve, 500));
+                await loadDataFromSheets();
+                alert('✅ Custo salvo com sucesso na Planilha!');
+            } catch(e) {
+                console.error("Erro ao salvar custo", e);
+                alert('❌ Erro ao salvar. Tente novamente.');
+            } finally {
+                document.getElementById('loading-custos').style.display = 'none';
+            }
         }
 
         function renderReportTable() {
@@ -826,12 +844,19 @@
                 date: new Date().toISOString().split('T')[0]
             };
             document.getElementById('loading-pedidos').style.display = 'flex';
-            await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-            document.getElementById('order-code').value = '';
-            document.getElementById('order-bairro').value = '';
-            await loadDataFromSheets();
-            document.getElementById('loading-pedidos').style.display = 'none';
-            alert('✅ Entrega registrada na Planilha Nuvem!');
+            try {
+                await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+                document.getElementById('order-code').value = '';
+                document.getElementById('order-bairro').value = '';
+                await new Promise(resolve => setTimeout(resolve, 500));
+                await loadDataFromSheets();
+                alert('✅ Entrega registrada na Planilha Nuvem!');
+            } catch(e) {
+                console.error("Erro ao salvar pedido", e);
+                alert('❌ Erro ao registrar. Tente novamente.');
+            } finally {
+                document.getElementById('loading-pedidos').style.display = 'none';
+            }
         }
 
         function updateOrdersView() {
@@ -843,19 +868,16 @@
             let qtdCurtas = 0;
             let qtdLongas = 0;
 
-            // Dicionário temporário para gerar o ranking geral
             let rankingData = {};
             registeredMotoboys.forEach(m => rankingData[m] = 0);
 
             ordersDatabase.forEach(o => {
                 const taxaNum = Number(o.Taxa);
                 
-                // Contabilidade para o Ranking (apenas entregas OK)
                 if (o.Status === 'OK' && rankingData[o.Motoboy] !== undefined) {
                     rankingData[o.Motoboy]++;
                 }
 
-                // Aplicação dos filtros visuais da tabela e dos KPIs
                 if (filterVal === 'ALL' || o.Motoboy === filterVal) {
                     tb.innerHTML += `<tr>
                         <td><strong>${o.Motoboy}</strong></td>
@@ -869,7 +891,6 @@
                         totalTaxas += taxaNum;
                         qtdOk++;
                         
-                        // Classificação de quilometragem baseada no valor padrão da taxa (ex: 7 reais é curta, maior que isso é longa)
                         if (taxaNum <= 7) {
                             qtdCurtas++;
                         } else {
@@ -879,7 +900,6 @@
                 }
             });
 
-            // Atualiza os novos blocos do painel informativo
             document.getElementById('kpi-order-total').innerText = formatCurrency(totalTaxas);
             document.getElementById('kpi-order-ok').innerText = qtdOk;
             document.getElementById('kpi-order-curtas').innerText = qtdCurtas;
@@ -892,12 +912,10 @@
             const container = document.getElementById('ranking-container');
             container.innerHTML = '';
 
-            // Transforma o objeto em array ordenado do maior para o menor número de corridas
             let sortedArr = Object.keys(rankingData).map(name => {
                 return { name: name, count: rankingData[name] };
             }).sort((a, b) => b.count - a.count);
 
-            // Exibe o topo do ranking na tela
             sortedArr.forEach((item, index) => {
                 container.innerHTML += `
                     <div class="ranking-item">
@@ -923,10 +941,23 @@
             window.open(`https://wa.me/5581981267614?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
+        // Auto-refresh a cada 5 segundos
+        function startAutoRefresh() {
+            autoRefreshInterval = setInterval(() => {
+                loadDataFromSheets();
+            }, 5000);
+        }
+
         window.onload = function() {
             document.getElementById('admin-lock-wrapper').style.display = 'flex';
             document.getElementById('admin-content-wrapper').style.display = 'none';
             loadDataFromSheets();
+            startAutoRefresh();
+        };
+
+        // Limpar interval ao descarregar
+        window.onbeforeunload = function() {
+            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
         };
     </script>
 </body>
