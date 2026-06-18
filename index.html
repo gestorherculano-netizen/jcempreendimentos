@@ -497,20 +497,20 @@
                         <div class="inputs-form">
                             <div class="input-block full-width">
                                 <label>Nome do Fechamento</label>
-                                <input type="text" id="input-name" placeholder="Ex: Turno Noite" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px; outline:none;">
+                                <input type="text" id="input-name" placeholder="Ex: Turno Noite" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#f8fafc; border-radius:8px;">
                             </div>
                             <div class="input-block full-width">
                                 <label>Motoboys na Escala</label>
                                 <div class="motoboys-selector-grid" id="checkbox-container"></div>
                             </div>
-                            <div class="input-block"><label>Data</label><input type="date" id="input-date" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px;"></div>
+                            <div class="input-block"><label>Data</label><input type="date" id="input-date" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#f8fafc; border-radius:8px;"></div>
                             <div class="input-block"><label>Gasolina</label><div class="input-wrapper"><span>R$</span><input type="number" id="input-gas" value="25.00"></div></div>
-                            <div class="input-block"><label>Qtd (≤ 6km)</label><input type="number" id="input-q1" value="10" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px;"></div>
+                            <div class="input-block"><label>Qtd (≤ 6km)</label><input type="number" id="input-q1" value="10" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#f8fafc; border-radius:8px;"></div>
                             <div class="input-block"><label>Valor (≤ 6km)</label><div class="input-wrapper"><span>R$</span><input type="number" id="input-v1" value="7.00"></div></div>
-                            <div class="input-block"><label>Qtd (≥ 7km)</label><input type="number" id="input-q2" value="4" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px;"></div>
+                            <div class="input-block"><label>Qtd (≥ 7km)</label><input type="number" id="input-q2" value="4" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#f8fafc; border-radius:8px;"></div>
                             <div class="input-block"><label>Valor (≥ 7km)</label><div class="input-wrapper"><span>R$</span><input type="number" id="input-v2" value="13.50"></div></div>
                             <div class="input-block"><label>Fixo Moto</label><div class="input-wrapper"><span>R$</span><input type="number" id="input-fixed" value="35.00"></div></div>
-                            <div class="input-block"><label>Motos Ativas</label><input type="number" id="input-motos-count" value="0" readonly style="background: rgba(255,255,255,0.05); color: var(--text-muted);"></div>
+                            <div class="input-block"><label>Motos Ativas</label><input type="number" id="input-motos-count" value="0" readonly style="background: rgba(255,255,255,0.05); color: var(--text-main); border:1px solid var(--border-color); padding:10px; border-radius:8px;"></div>
                             <button class="btn-save" onclick="saveDayRow()"><i class="fa-solid fa-floppy-disk"></i> Salvar na Planilha Google</button>
                         </div>
                     </div>
@@ -563,9 +563,9 @@
                     <div class="loading-overlay" id="loading-pedidos">Registrando...</div>
                     <div class="card-title"><div><i class="fa-solid fa-square-plus"></i> Registrar Entrega</div></div>
                     <div class="inputs-form">
-                        <div class="input-block"><label>Motoboy</label><select id="order-motoboy" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px;"></select></div>
-                        <div class="input-block"><label>Código do Pedido</label><input type="text" id="order-code" placeholder="Ex: #1024" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px;"></div>
-                        <div class="input-block"><label>Bairro</label><input type="text" id="order-bairro" placeholder="Ex: Centro" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px;"></div>
+                        <div class="input-block"><label>Motoboy</label><select id="order-motoboy" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#f8fafc; border-radius:8px;"></select></div>
+                        <div class="input-block"><label>Código do Pedido</label><input type="text" id="order-code" placeholder="Ex: #1024" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#f8fafc; border-radius:8px;"></div>
+                        <div class="input-block"><label>Bairro</label><input type="text" id="order-bairro" placeholder="Ex: Centro" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#f8fafc; border-radius:8px;"></div>
                         <div class="input-block"><label>Taxa</label><div class="input-wrapper"><span>R$</span><input type="number" id="order-fee" value="7.00"></div></div>
                         <div class="input-block full-width">
                             <label>Status</label>
@@ -602,7 +602,7 @@
             <div class="card">
                 <div class="card-title">
                     <div><i class="fa-solid fa-motorcycle"></i> Entregas Lançadas na Planilha</div>
-                    <select id="filter-motoboy-select" onchange="updateOrdersView();" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:6px; color:#fff; border-radius:6px;"></select>
+                    <select id="filter-motoboy-select" onchange="updateOrdersView();" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:6px; color:#fff; border-radius:8px;"></select>
                 </div>
                 <div class="table-container">
                     <table>
@@ -685,16 +685,36 @@
         }
 
         function verifyAdminAccess() {
-            const user = document.getElementById('admin-user-input').value;
-            const pass = document.getElementById('admin-pass-input').value;
+            const user = document.getElementById('admin-user-input').value.trim();
+            const pass = document.getElementById('admin-pass-input').value.trim();
+            
+            // Validação melhorada com mensagens de erro específicas
+            if (!user || !pass) {
+                alert('⚠️ Por favor, preencha usuário e senha.');
+                return;
+            }
+            
             if (user === 'admin' && pass === 'jc2026') {
                 isAdminAuthenticated = true;
                 document.getElementById('admin-lock-wrapper').style.display = 'none';
                 document.getElementById('admin-content-wrapper').style.display = 'flex';
+                document.getElementById('admin-user-input').value = '';
+                document.getElementById('admin-pass-input').value = '';
             } else { 
-                alert('Usuário ou Senha incorretos.'); 
+                alert('❌ Usuário ou Senha incorretos.\n\nCredenciais:\nUsuário: admin\nSenha: jc2026'); 
             }
         }
+
+        // Permitir Enter para enviar credenciais
+        document.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                const adminUserInput = document.getElementById('admin-user-input');
+                const adminPassInput = document.getElementById('admin-pass-input');
+                if (document.activeElement === adminUserInput || document.activeElement === adminPassInput) {
+                    verifyAdminAccess();
+                }
+            }
+        });
 
         function renderMotoboysCheckboxes() {
             const c = document.getElementById('checkbox-container'); c.innerHTML = '';
@@ -767,7 +787,7 @@
             await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
             await loadDataFromSheets();
             document.getElementById('loading-custos').style.display = 'none';
-            alert('Custo salvo com sucesso na Planilha!');
+            alert('✅ Custo salvo com sucesso na Planilha!');
         }
 
         function renderReportTable() {
@@ -811,7 +831,7 @@
             document.getElementById('order-bairro').value = '';
             await loadDataFromSheets();
             document.getElementById('loading-pedidos').style.display = 'none';
-            alert('Entrega registrada na Planilha Nuvem!');
+            alert('✅ Entrega registrada na Planilha Nuvem!');
         }
 
         function updateOrdersView() {
