@@ -333,8 +333,6 @@
             font-size: 13px;
         }
 
-        .crud-item button { background: none; border: none; color: var(--danger); cursor: pointer; }
-
         .btn-save {
             grid-column: 1 / -1;
             background-color: var(--accent);
@@ -368,21 +366,8 @@
             margin-top: 4px;
         }
 
-        .btn-excel {
-            background-color: var(--accent-excel);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            font-size: 13px;
-            font-weight: 600;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
         .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .kpi-grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 
         .kpi-card {
             background-color: var(--bg-card);
@@ -416,14 +401,12 @@
         }
 
         td { padding: 12px; border-bottom: 1px solid var(--border-color); }
-        .empty-warning { text-align: center; color: var(--text-muted); padding: 32px; font-style: italic; }
         
-        /* Loading Overlay */
         .loading-overlay {
             display: none;
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.7);
+            background: rgba(15, 23, 42, 0.85);
             border-radius: 12px;
             justify-content: center;
             align-items: center;
@@ -431,6 +414,51 @@
             font-weight: 600;
             color: var(--text-main);
         }
+
+        .sync-badge {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1e3a8a;
+            border: 1px solid var(--accent-blue);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        /* Estilo para a lista de ranking */
+        .ranking-list { display: flex; flex-direction: column; gap: 8px; margin-top: 5px; }
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .ranking-position {
+            font-weight: 700;
+            width: 24px;
+            height: 24px;
+            background: var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .ranking-item:nth-child(1) .ranking-position { background: #eab308; color: #000; } /* Ouro */
+        .ranking-item:nth-child(2) .ranking-position { background: #cbd5e1; color: #000; } /* Prata */
+        .ranking-item:nth-child(3) .ranking-position { background: #b45309; color: #fff; } /* Bronze */
     </style>
 </head>
 <body>
@@ -445,14 +473,15 @@
         </header>
 
         <nav class="tabs-nav">
-            <button class="tab-btn" onclick="switchTab('tab-gestao')"><i class="fa-solid fa-chart-line"></i> Custos e Fechamento Geral</button>
-            <button class="tab-btn active" onclick="switchTab('tab-motoboys')"><i class="fa-solid fa-motorcycle"></i> Área do Motoboy / Pedidos</button>
+            <button class="tab-btn" id="btn-nav-gestao" onclick="switchTab('tab-gestao')"><i class="fa-solid fa-chart-line"></i> Custos e Fechamento Geral</button>
+            <button class="tab-btn active" id="btn-nav-motoboys" onclick="switchTab('tab-motoboys')"><i class="fa-solid fa-motorcycle"></i> Área do Motoboy / Pedidos</button>
         </nav>
 
         <div id="tab-gestao" class="tab-content">
             <div id="admin-lock-wrapper" class="admin-lock-screen">
                 <i class="fa-solid fa-lock"></i>
                 <h2>Área Restrita do Administrador</h2>
+                <p>Insira as credenciais para ver e alterar custos gerais.</p>
                 <div class="admin-form-box">
                     <input type="text" id="admin-user-input" placeholder="Usuário">
                     <input type="password" id="admin-pass-input" placeholder="Senha">
@@ -481,14 +510,13 @@
                             <div class="input-block"><label>Qtd (≥ 7km)</label><input type="number" id="input-q2" value="4" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px;"></div>
                             <div class="input-block"><label>Valor (≥ 7km)</label><div class="input-wrapper"><span>R$</span><input type="number" id="input-v2" value="13.50"></div></div>
                             <div class="input-block"><label>Fixo Moto</label><div class="input-wrapper"><span>R$</span><input type="number" id="input-fixed" value="35.00"></div></div>
-                            <div class="input-block"><label>Motos Ativas</label><input type="number" id="input-motos-count" value="0"></div>
+                            <div class="input-block"><label>Motos Ativas</label><input type="number" id="input-motos-count" value="0" readonly style="background: rgba(255,255,255,0.05); color: var(--text-muted);"></div>
                             <button class="btn-save" onclick="saveDayRow()"><i class="fa-solid fa-floppy-disk"></i> Salvar na Planilha Google</button>
                         </div>
                     </div>
 
                     <div style="display: flex; flex-direction: column; gap: 24px;">
                         <div class="card">
-                            <div class="loading-overlay" id="loading-equipe">Atualizando equipe...</div>
                             <div class="card-title"><div><i class="fa-solid fa-users-gear"></i> Equipe de Motoboys</div></div>
                             <div class="crud-motoboys-box">
                                 <div class="crud-input-group">
@@ -551,20 +579,30 @@
                     </div>
                 </div>
 
-                <div class="card">
-                    <div class="card-title"><div><i class="fa-solid fa-chart-bar"></i> Resumo de Taxas</div></div>
-                    <div class="kpi-grid">
-                        <div class="kpi-card highlight"><span class="kpi-title">Total Taxas</span><span class="kpi-value" id="kpi-order-total">R$ 0,00</span></div>
-                        <div class="kpi-card"><span class="kpi-title">Entregues OK</span><span class="kpi-value" id="kpi-order-ok">0</span></div>
+                <div style="display: flex; flex-direction: column; gap: 24px;">
+                    <div class="card">
+                        <div class="card-title"><div><i class="fa-solid fa-chart-bar"></i> Resumo de Informações</div></div>
+                        <div class="kpi-grid-4">
+                            <div class="kpi-card highlight" style="grid-column: span 2;"><span class="kpi-title">Total Taxas</span><span class="kpi-value" id="kpi-order-total">R$ 0,00</span></div>
+                            <div class="kpi-card"><span class="kpi-title">Total Geral OK</span><span class="kpi-value" id="kpi-order-ok">0</span></div>
+                            <div class="kpi-card"><span class="kpi-title">Qtd (≤ 6km)</span><span class="kpi-value" id="kpi-order-curtas" style="color: #3b82f6;">0</span></div>
+                            <div class="kpi-card" style="grid-column: span 2;"><span class="kpi-title">Qtd (≥ 7km)</span><span class="kpi-value" id="kpi-order-longas" style="color: #f59e0b;">0</span></div>
+                        </div>
+                        <button class="btn-whatsapp" onclick="sendDashboardWhatsApp()"><i class="fa-brands fa-whatsapp"></i> Enviar via WhatsApp</button>
                     </div>
-                    <button class="btn-whatsapp" onclick="sendDashboardWhatsApp()"><i class="fa-brands fa-whatsapp"></i> Enviar via WhatsApp</button>
+
+                    <div class="card">
+                        <div class="card-title"><div><i class="fa-solid fa-trophy"></i> Ranking de Corridas (Turno)</div></div>
+                        <div class="ranking-list" id="ranking-container">
+                            </div>
+                    </div>
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-title">
                     <div><i class="fa-solid fa-motorcycle"></i> Entregas Lançadas na Planilha</div>
-                    <select id="filter-motoboy-select" onchange="renderOrdersTable(); calculateOrdersAggregates();" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:6px; color:#fff; border-radius:6px;"></select>
+                    <select id="filter-motoboy-select" onchange="updateOrdersView();" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:6px; color:#fff; border-radius:6px;"></select>
                 </div>
                 <div class="table-container">
                     <table>
@@ -582,6 +620,10 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="sync-badge" id="sync-notification">
+        <i class="fa-solid fa-spinner fa-spin"></i> Sincronizando com a Planilha Google...
     </div>
 
     <script>
@@ -618,8 +660,7 @@
             renderCrudList();
             renderMotoboysCheckboxes();
             renderMotoboySelects();
-            renderOrdersTable();
-            calculateOrdersAggregates();
+            updateOrdersView();
             renderReportTable();
             calculateAggregates();
         }
@@ -627,20 +668,32 @@
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
             document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
             if (tabId === 'tab-gestao') {
-                document.getElementById('admin-lock-wrapper').style.display = isAdminAuthenticated ? 'none' : 'flex';
-                document.getElementById('admin-content-wrapper').style.display = isAdminAuthenticated ? 'flex' : 'none';
+                document.getElementById('btn-nav-gestao').classList.add('active');
+                if (!isAdminAuthenticated) {
+                    document.getElementById('admin-lock-wrapper').style.display = 'flex';
+                    document.getElementById('admin-content-wrapper').style.display = 'none';
+                } else {
+                    document.getElementById('admin-lock-wrapper').style.display = 'none';
+                    document.getElementById('admin-content-wrapper').style.display = 'flex';
+                }
+            } else {
+                document.getElementById('btn-nav-motoboys').classList.add('active');
             }
         }
 
         function verifyAdminAccess() {
-            if (document.getElementById('admin-user-input').value === 'admin' && document.getElementById('admin-pass-input').value === 'jc2026') {
+            const user = document.getElementById('admin-user-input').value;
+            const pass = document.getElementById('admin-pass-input').value;
+            if (user === 'admin' && pass === 'jc2026') {
                 isAdminAuthenticated = true;
                 document.getElementById('admin-lock-wrapper').style.display = 'none';
                 document.getElementById('admin-content-wrapper').style.display = 'flex';
-            } else { alert('Acesso incorreto.'); }
+            } else { 
+                alert('Usuário ou Senha incorretos.'); 
+            }
         }
 
         function renderMotoboysCheckboxes() {
@@ -654,11 +707,16 @@
         function renderMotoboySelects() {
             const s1 = document.getElementById('order-motoboy');
             const s2 = document.getElementById('filter-motoboy-select');
-            s1.innerHTML = ''; s2.innerHTML = '<option value="ALL">🔍 Todos os Motoboys</option>';
+            const currentFilterValue = s2.value || "ALL";
+            
+            s1.innerHTML = ''; 
+            s2.innerHTML = '<option value="ALL">🔍 Todos os Motoboys</option>';
+            
             registeredMotoboys.forEach(m => {
                 s1.innerHTML += `<option value="${m}">${m}</option>`;
                 s2.innerHTML += `<option value="${m}">${m}</option>`;
             });
+            s2.value = currentFilterValue;
         }
 
         function renderCrudList() {
@@ -668,13 +726,26 @@
 
         async function addMotoboyRegistry() {
             const name = document.getElementById('new-motoboy-name').value.trim();
-            if(!name || registeredMotoboys.includes(name)) return alert('Nome inválido ou repetido');
-            document.getElementById('loading-equipe').style.display = 'flex';
+            if(!name || registeredMotoboys.includes(name)) return alert('Nome inválido ou já existente.');
             
-            await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'Motoboys', name: name }) });
+            registeredMotoboys.push(name);
+            renderAll();
             document.getElementById('new-motoboy-name').value = '';
-            await loadDataFromSheets();
-            document.getElementById('loading-equipe').style.display = 'none';
+            
+            const syncBadge = document.getElementById('sync-notification');
+            syncBadge.style.display = 'flex';
+            
+            try {
+                await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'Motoboys', name: name }) });
+                let resM = await fetch(`${API_URL}?action=Motoboys`);
+                let dataM = await resM.json();
+                registeredMotoboys = dataM.map(r => r.Nome).filter(Boolean);
+                renderAll();
+            } catch(e) {
+                console.error("Erro na sincronização em background", e);
+            } finally {
+                syncBadge.style.display = 'none';
+            }
         }
 
         async function saveDayRow() {
@@ -696,19 +767,19 @@
             await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
             await loadDataFromSheets();
             document.getElementById('loading-custos').style.display = 'none';
-            alert('Custo salvo na planilha!');
+            alert('Custo salvo com sucesso na Planilha!');
         }
 
         function renderReportTable() {
             const tb = document.getElementById('report-body'); tb.innerHTML = '';
             monthlyDatabase.forEach(r => {
-                let total = (r.Qtd_Ate_6km * r.Valor_Ate_6km) + (r.Qtd_Acima_7km * r.Valor_Acima_7km) + (r.Qtd_Motos * r.Fixo_Unitario) + r.Gasolina;
+                let total = (Number(r.Qtd_Ate_6km) * Number(r.Valor_Ate_6km)) + (Number(r.Qtd_Acima_7km) * Number(r.Valor_Acima_7km)) + (Number(r.Qtd_Motos) * Number(r.Fixo_Unitario)) + Number(r.Gasolina);
                 tb.innerHTML += `<tr>
                     <td><strong>${formatDate(r.Data)}</strong><br><small>${r.Identificacao}</small></td>
-                    <td>${formatCurrency(r.Qtd_Ate_6km * r.Valor_Ate_6km)}</td>
-                    <td>${formatCurrency(r.Qtd_Acima_7km * r.Valor_Acima_7km)}</td>
-                    <td>${formatCurrency(r.Qtd_Motos * r.Fixo_Unitario)}</td>
-                    <td>${formatCurrency(r.Gasolina)}</td>
+                    <td>${formatCurrency(Number(r.Qtd_Ate_6km) * Number(r.Valor_Ate_6km))}</td>
+                    <td>${formatCurrency(Number(r.Qtd_Acima_7km) * Number(r.Valor_Acima_7km))}</td>
+                    <td>${formatCurrency(Number(r.Qtd_Motos) * Number(r.Fixo_Unitario))}</td>
+                    <td>${formatCurrency(Number(r.Gasolina))}</td>
                     <td style="color:var(--accent-blue); font-weight:700;">${formatCurrency(total)}</td>
                 </tr>`;
             });
@@ -717,7 +788,7 @@
         function calculateAggregates() {
             let total = 0;
             monthlyDatabase.forEach(r => {
-                total += (r.Qtd_Ate_6km * r.Valor_Ate_6km) + (r.Qtd_Acima_7km * r.Valor_Acima_7km) + (r.Qtd_Motos * r.Fixo_Unitario) + r.Gasolina;
+                total += (Number(r.Qtd_Ate_6km) * Number(r.Valor_Ate_6km)) + (Number(r.Qtd_Acima_7km) * Number(r.Valor_Acima_7km)) + (Number(r.Qtd_Motos) * Number(r.Fixo_Unitario)) + Number(r.Gasolina);
             });
             document.getElementById('total-mensal').innerText = formatCurrency(total);
             document.getElementById('total-dias').innerText = monthlyDatabase.length;
@@ -729,4 +800,114 @@
                 id: Date.now(),
                 motoboy: document.getElementById('order-motoboy').value,
                 code: document.getElementById('order-code').value.trim() || "S/C",
-                bairro: document.getElementById('order-bairro').value.
+                bairro: document.getElementById('order-bairro').value.trim() || "Geral",
+                fee: parseFloat(document.getElementById('order-fee').value) || 0,
+                status: document.getElementById('order-status').value,
+                date: new Date().toISOString().split('T')[0]
+            };
+            document.getElementById('loading-pedidos').style.display = 'flex';
+            await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+            document.getElementById('order-code').value = '';
+            document.getElementById('order-bairro').value = '';
+            await loadDataFromSheets();
+            document.getElementById('loading-pedidos').style.display = 'none';
+            alert('Entrega registrada na Planilha Nuvem!');
+        }
+
+        function updateOrdersView() {
+            const tb = document.getElementById('orders-table-body'); tb.innerHTML = '';
+            const filterVal = document.getElementById('filter-motoboy-select').value || 'ALL';
+            
+            let totalTaxas = 0;
+            let qtdOk = 0;
+            let qtdCurtas = 0;
+            let qtdLongas = 0;
+
+            // Dicionário temporário para gerar o ranking geral
+            let rankingData = {};
+            registeredMotoboys.forEach(m => rankingData[m] = 0);
+
+            ordersDatabase.forEach(o => {
+                const taxaNum = Number(o.Taxa);
+                
+                // Contabilidade para o Ranking (apenas entregas OK)
+                if (o.Status === 'OK' && rankingData[o.Motoboy] !== undefined) {
+                    rankingData[o.Motoboy]++;
+                }
+
+                // Aplicação dos filtros visuais da tabela e dos KPIs
+                if (filterVal === 'ALL' || o.Motoboy === filterVal) {
+                    tb.innerHTML += `<tr>
+                        <td><strong>${o.Motoboy}</strong></td>
+                        <td>${o.Codigo}</td>
+                        <td>${o.Bairro}</td>
+                        <td style="color:#4ade80;">${formatCurrency(taxaNum)}</td>
+                        <td><span class="badge ${o.Status==='OK'?'badge-success':o.Status==='AUSENTE'?'badge-warning':'badge-danger'}">${o.Status}</span></td>
+                    </tr>`;
+
+                    if (o.Status === 'OK') {
+                        totalTaxas += taxaNum;
+                        qtdOk++;
+                        
+                        // Classificação de quilometragem baseada no valor padrão da taxa (ex: 7 reais é curta, maior que isso é longa)
+                        if (taxaNum <= 7) {
+                            qtdCurtas++;
+                        } else {
+                            qtdLongas++;
+                        }
+                    }
+                }
+            });
+
+            // Atualiza os novos blocos do painel informativo
+            document.getElementById('kpi-order-total').innerText = formatCurrency(totalTaxas);
+            document.getElementById('kpi-order-ok').innerText = qtdOk;
+            document.getElementById('kpi-order-curtas').innerText = qtdCurtas;
+            document.getElementById('kpi-order-longas').innerText = qtdLongas;
+
+            renderRanking(rankingData);
+        }
+
+        function renderRanking(rankingData) {
+            const container = document.getElementById('ranking-container');
+            container.innerHTML = '';
+
+            // Transforma o objeto em array ordenado do maior para o menor número de corridas
+            let sortedArr = Object.keys(rankingData).map(name => {
+                return { name: name, count: rankingData[name] };
+            }).sort((a, b) => b.count - a.count);
+
+            // Exibe o topo do ranking na tela
+            sortedArr.forEach((item, index) => {
+                container.innerHTML += `
+                    <div class="ranking-item">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div class="ranking-position">${index + 1}</div>
+                            <strong>${item.name}</strong>
+                        </div>
+                        <span style="color:var(--text-muted); font-size:13px;"><b>${item.count}</b> corridas</span>
+                    </div>
+                `;
+            });
+        }
+
+        function sendDashboardWhatsApp() {
+            const filterVal = document.getElementById('filter-motoboy-select').value || 'ALL';
+            let msg = `*JC LOG - RELATÓRIO DE ENTREGAS*\n*Filtro:* ${filterVal === 'ALL' ? 'Todos os Motoboys' : filterVal}\n\n`;
+            
+            ordersDatabase.forEach(o => {
+                if (filterVal === 'ALL' || o.Motoboy === filterVal) {
+                    msg += `• ${o.Motoboy} | Pedido: ${o.Codigo} | ${o.Bairro} | Taxa: R$ ${Number(o.Taxa).toFixed(2)} | [${o.Status}]\n`;
+                }
+            });
+            window.open(`https://wa.me/5581981267614?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        window.onload = function() {
+            document.getElementById('admin-lock-wrapper').style.display = 'flex';
+            document.getElementById('admin-content-wrapper').style.display = 'none';
+            loadDataFromSheets();
+        };
+    </script>
+</body>
+</html>
