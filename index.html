@@ -485,7 +485,7 @@
             <button class="tab-btn active" onclick="switchTab('tab-motoboys')"><i class="fa-solid fa-motorcycle"></i> Área do Motoboy / Pedidos</button>
         </nav>
 
-        <!-- ABA DE GESTÃO (UNIFICADA COM TELA DE BLOQUEIO) -->
+        <!-- ABA DE GESTÃO -->
         <div id="tab-gestao" class="tab-content">
             
             <!-- Bloqueio Administrativo Interno -->
@@ -500,7 +500,7 @@
                 </div>
             </div>
 
-            <!-- Conteúdo de Gestão (Oculto até validação) -->
+            <!-- Conteúdo de Gestão -->
             <div id="admin-content-wrapper" style="display: none; flex-direction: column; gap: 24px;">
                 <div class="main-grid">
                     <div class="card">
@@ -858,6 +858,7 @@
             if(!name) return alert('Insira um nome válido');
             if(registeredMotoboys.includes(name)) return alert('Este nome já está cadastrado');
             
+            // Correção aplicada aqui: Atualização imediata no Banco Local e em todas as Views
             registeredMotoboys.push(name);
             localStorage.setItem('registeredMotoboysDB', JSON.stringify(registeredMotoboys));
             nameInput.value = '';
@@ -865,6 +866,8 @@
             renderCrudList();
             renderMotoboysCheckboxes();
             renderMotoboySelects();
+            
+            alert(`Motoboy "${name}" cadastrado e importado com sucesso!`);
         }
 
         function deleteMotoboyRegistry(idx) {
@@ -1084,7 +1087,7 @@
 
             const dataAtual = new Date().toLocaleDateString('pt-BR');
 
-            const mensagem = `*JC EMPREENDIMENTOS - RELATÓRIO LOGÍSTICO* 🏍️\n` +
+            const mensagem = `*JC EMPREENDIMENTOS - RELATÓRIO LOGÍSTICO* 🏍\n` +
                              `*Data:* ${dataAtual}\n` +
                              `*Filtro:* ${escopoMotoboy}\n\n` +
                              `*RESUMO DO FECHAMENTO:*\n` +
