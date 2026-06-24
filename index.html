@@ -564,7 +564,7 @@
                     <div class="loading-overlay" id="loading-pedidos">Carregando dados da nuvem...</div>
                     <div class="card-title"><div><i class="fa-solid fa-square-plus"></i> Registrar Entrega</div></div>
                     <div class="inputs-form">
-                        <div class="input-block"><label>Motoboy</label><select id="order-motoboy" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px;"></select></div>
+                        <div class="input-block"><label>Motoboy</label><select id="order-motoboy" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px Holy;"></select></div>
                         <div class="input-block"><label>Código do Pedido</label><input type="text" id="order-code" placeholder="Ex: #1024" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px;"></div>
                         <div class="input-block"><label>Bairro</label><input type="text" id="order-bairro" placeholder="Ex: Centro" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px;"></div>
                         <div class="input-block"><label>Taxa</label><div class="input-wrapper"><span>R$</span><input type="number" id="order-fee" value="7.00"></div></div>
@@ -628,7 +628,6 @@
     </div>
 
     <script>
-        // Link configurado e sincronizado com a Versão 4 de permissões públicas.
         const API_URL = "https://script.google.com/macros/s/AKfycbwDGImVkZh8pDoL5d9wu6SYA_zkPacY2XApiTsHABxTQAuc-UutHF4SZvTeaCDds3hvng/exec";
         
         let monthlyDatabase = [];
@@ -643,7 +642,6 @@
 
         async function loadDataFromSheets() {
             try {
-                // Remove temporariamente a trava de tela inicial se houver dados
                 let resM = await fetch(`${API_URL}?action=Motoboys`);
                 let dataM = await resM.json();
                 registeredMotoboys = dataM.map(r => r.Nome).filter(Boolean);
@@ -735,8 +733,6 @@
             try {
                 await fetch(API_URL, { 
                     method: 'POST', 
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'Motoboys', name: name }) 
                 });
                 
@@ -769,7 +765,7 @@
                 motoboys: Array.from(document.querySelectorAll('#checkbox-container input:checked')).map(cb => cb.value)
             };
             document.getElementById('loading-custos').style.display = 'flex';
-            await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
             setTimeout(async () => {
                 await loadDataFromSheets();
                 document.getElementById('loading-custos').style.display = 'none';
@@ -795,8 +791,6 @@
             try {
                 await fetch(API_URL, { 
                     method: 'POST', 
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload) 
                 });
                 
