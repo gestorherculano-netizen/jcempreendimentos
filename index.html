@@ -403,10 +403,10 @@
         td { padding: 12px; border-bottom: 1px solid var(--border-color); }
         
         .loading-overlay {
-            display: none;
+            display: flex;
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(15, 23, 42, 0.9);
             border-radius: 12px;
             justify-content: center;
             align-items: center;
@@ -476,6 +476,7 @@
             <button class="tab-btn active" id="btn-nav-motoboys" onclick="switchTab('tab-motoboys')"><i class="fa-solid fa-motorcycle"></i> Área do Motoboy / Pedidos</button>
         </nav>
 
+        <!-- ABA DE GESTÃO -->
         <div id="tab-gestao" class="tab-content">
             <div id="admin-lock-wrapper" class="admin-lock-screen">
                 <i class="fa-solid fa-lock"></i>
@@ -491,7 +492,7 @@
             <div id="admin-content-wrapper" style="display: none; flex-direction: column; gap: 24px;">
                 <div class="main-grid">
                     <div class="card">
-                        <div class="loading-overlay" id="loading-custos">Enviando dados...</div>
+                        <div class="loading-overlay" id="loading-custos" style="display:none;">Enviando dados...</div>
                         <div class="card-title"><div><i class="fa-solid fa-calendar-day"></i> Lançamento do Dia</div></div>
                         <div class="inputs-form">
                             <div class="input-block full-width">
@@ -556,10 +557,11 @@
             </div>
         </div>
 
+        <!-- ÁREA DO MOTOBOY / PEDIDOS -->
         <div id="tab-motoboys" class="tab-content active">
             <div class="main-grid">
                 <div class="card">
-                    <div class="loading-overlay" id="loading-pedidos">Registrando entrega...</div>
+                    <div class="loading-overlay" id="loading-pedidos">Carregando dados da nuvem...</div>
                     <div class="card-title"><div><i class="fa-solid fa-square-plus"></i> Registrar Entrega</div></div>
                     <div class="inputs-form">
                         <div class="input-block"><label>Motoboy</label><select id="order-motoboy" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px;"></select></div>
@@ -620,12 +622,13 @@
         </div>
     </div>
 
+    <!-- Indicador de Sincronização em Tempo Real -->
     <div class="sync-badge" id="sync-notification">
         <i class="fa-solid fa-spinner fa-spin"></i> Gravando dados no Google Sheets... Aguarde.
     </div>
 
     <script>
-        // Link de Implantação configurado com sucesso!
+        // Link configurado e sincronizado com a Versão 4 de permissões públicas.
         const API_URL = "https://script.google.com/macros/s/AKfycbwDGImVkZh8pDoL5d9wu6SYA_zkPacY2XApiTsHABxTQAuc-UutHF4SZvTeaCDds3hvng/exec";
         
         let monthlyDatabase = [];
@@ -640,11 +643,11 @@
 
         async function loadDataFromSheets() {
             try {
+                // Remove temporariamente a trava de tela inicial se houver dados
                 let resM = await fetch(`${API_URL}?action=Motoboys`);
                 let dataM = await resM.json();
                 registeredMotoboys = dataM.map(r => r.Nome).filter(Boolean);
-                if(registeredMotoboys.length === 0) registeredMotoboys = ["Nenhum cadastrado"];
-
+                
                 let resO = await fetch(`${API_URL}?action=Pedidos`);
                 ordersDatabase = await resO.json();
 
@@ -652,7 +655,11 @@
                 monthlyDatabase = await resC.json();
 
                 renderAll();
-            } catch(e) { console.error("Erro ao ler dados da planilha", e); }
+                document.getElementById('loading-pedidos').style.display = 'none';
+            } catch(e) { 
+                console.error("Erro ao ler dados da planilha", e); 
+                document.getElementById('loading-pedidos').innerText = "Erro ao conectar. Recarregue a página.";
+            }
         }
 
         function renderAll() {
@@ -742,7 +749,7 @@
             } catch(e) {
                 console.error(e);
                 syncBadge.style.display = 'none';
-                alert('Erro ao sincronizar. Verifique se o link da sua API está correto.');
+                alert('Erro na gravação.');
             }
         }
 
@@ -782,6 +789,7 @@
                 date: new Date().toISOString().split('T')[0]
             };
             
+            document.getElementById('loading-pedidos').innerText = "Gravando entrega...";
             document.getElementById('loading-pedidos').style.display = 'flex';
             
             try {
@@ -797,13 +805,12 @@
                 
                 setTimeout(async () => {
                     await loadDataFromSheets();
-                    document.getElementById('loading-pedidos').style.display = 'none';
                 }, 1500);
 
             } catch (err) {
                 console.error(err);
                 document.getElementById('loading-pedidos').style.display = 'none';
-                alert('Houve um erro no envio para o Google Sheets.');
+                alert('Erro ao enviar pedido.');
             }
         }
 
@@ -904,8 +911,6 @@
         }
 
         window.onload = function() {
-            document.getElementById('admin-lock-wrapper').style.display = 'flex';
-            document.getElementById('admin-content-wrapper').style.display = 'none';
             loadDataFromSheets();
         };
     </script>
