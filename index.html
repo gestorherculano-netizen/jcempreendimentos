@@ -497,7 +497,7 @@
                         <div class="inputs-form">
                             <div class="input-block full-width">
                                 <label>Nome do Fechamento</label>
-                                <input type="text" id="input-name" placeholder="Ex: Turno Noite" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px; outline:none;">
+                                <input type="text" id="input-name" placeholder="Ex: Turno Noite" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px;">
                             </div>
                             <div class="input-block full-width">
                                 <label>Motoboys na Escala</label>
@@ -505,12 +505,12 @@
                             </div>
                             <div class="input-block"><label>Data</label><input type="date" id="input-date" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px;"></div>
                             <div class="input-block"><label>Gasolina</label><div class="input-wrapper"><span>R$</span><input type="number" id="input-gas" value="25.00"></div></div>
-                            <div class="input-block"><label>Qtd (≤ 6km)</label><input type="number" id="input-q1" value="10" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px;"></div>
+                            <div class="input-block"><label>Qtd (≤ 6km)</label><input type="number" id="input-q1" value="10" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; padding-left:40px; color:#fff; border-radius:8px;"></div>
                             <div class="input-block"><label>Valor (≤ 6km)</label><div class="input-wrapper"><span>R$</span><input type="number" id="input-v1" value="7.00"></div></div>
-                            <div class="input-block"><label>Qtd (≥ 7km)</label><input type="number" id="input-q2" value="4" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px;"></div>
+                            <div class="input-block"><label>Qtd (≥ 7km)</label><input type="number" id="input-q2" value="4" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; padding-left:40px; color:#fff; border-radius:8px;"></div>
                             <div class="input-block"><label>Valor (≥ 7km)</label><div class="input-wrapper"><span>R$</span><input type="number" id="input-v2" value="13.50"></div></div>
                             <div class="input-block"><label>Fixo Moto</label><div class="input-wrapper"><span>R$</span><input type="number" id="input-fixed" value="35.00"></div></div>
-                            <div class="input-block"><label>Motos Ativas</label><input type="number" id="input-motos-count" value="0" readonly style="background: rgba(255,255,255,0.05); color: var(--text-muted);"></div>
+                            <div class="input-block"><label>Motos Ativas</label><input type="number" id="input-motos-count" value="0" readonly style="background: rgba(255,255,255,0.05); color: var(--text-muted); border:1px solid var(--border-color); padding:10px; padding-left:40px; border-radius:8px;"></div>
                             <button class="btn-save" onclick="saveDayRow()"><i class="fa-solid fa-floppy-disk"></i> Salvar na Planilha Google</button>
                         </div>
                     </div>
@@ -564,7 +564,7 @@
                     <div class="loading-overlay" id="loading-pedidos">Carregando dados da nuvem...</div>
                     <div class="card-title"><div><i class="fa-solid fa-square-plus"></i> Registrar Entrega</div></div>
                     <div class="inputs-form">
-                        <div class="input-block"><label>Motoboy</label><select id="order-motoboy" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px Holy;"></select></div>
+                        <div class="input-block"><label>Motoboy</label><select id="order-motoboy" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px;"></select></div>
                         <div class="input-block"><label>Código do Pedido</label><input type="text" id="order-code" placeholder="Ex: #1024" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px;"></div>
                         <div class="input-block"><label>Bairro</label><input type="text" id="order-bairro" placeholder="Ex: Centro" style="background:var(--bg-primary); border:1px solid var(--border-color); padding:10px; color:#fff; border-radius:8px;"></div>
                         <div class="input-block"><label>Taxa</label><div class="input-wrapper"><span>R$</span><input type="number" id="order-fee" value="7.00"></div></div>
