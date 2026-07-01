@@ -640,23 +640,36 @@
         function formatCurrency(v) { return typeof v === 'number' ? v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : "R$ 0,00"; }
         function formatDate(d) { if(!d) return ""; let parts = d.split('T')[0].split('-'); return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : d; }
 
+        // Utility function to validate API responses
+        function ensureArray(data, defaultValue = []) {
+            if (Array.isArray(data)) return data;
+            console.warn("API response is not an array:", data);
+            return defaultValue;
+        }
+
         async function loadDataFromSheets() {
             try {
                 let resM = await fetch(`${API_URL}?action=Motoboys`);
+                if (!resM.ok) throw new Error(`HTTP Error: ${resM.status}`);
                 let dataM = await resM.json();
+                dataM = ensureArray(dataM);
                 registeredMotoboys = dataM.map(r => r.Nome).filter(Boolean);
                 
                 let resO = await fetch(`${API_URL}?action=Pedidos`);
-                ordersDatabase = await resO.json();
+                if (!resO.ok) throw new Error(`HTTP Error: ${resO.status}`);
+                ordersDatabase = ensureArray(await resO.json());
 
                 let resC = await fetch(`${API_URL}?action=Custos`);
-                monthlyDatabase = await resC.json();
+                if (!resC.ok) throw new Error(`HTTP Error: ${resC.status}`);
+                monthlyDatabase = ensureArray(await resC.json());
 
                 renderAll();
                 document.getElementById('loading-pedidos').style.display = 'none';
+                console.log("✅ Dados carregados com sucesso");
             } catch(e) { 
-                console.error("Erro ao ler dados da planilha", e); 
-                document.getElementById('loading-pedidos').innerText = "Erro ao conectar. Recarregue a página.";
+                console.error("❌ Erro ao ler dados da planilha:", e);
+                document.getElementById('loading-pedidos').innerText = `Erro ao conectar: ${e.message}. Verifique a URL da API.`;
+                document.getElementById('loading-pedidos').style.color = '#ef4444';
             }
         }
 
